@@ -9,7 +9,8 @@ function mapRequestToOrder(body) {
   return {
     orderId: body.numeroPedido,
     value: body.valorTotal,
-    creationDate: body.dataCriacao,
+    // allows empty timestamps and uses current one
+    creationDate: body.dataCriacao || new Date().toISOString(),
     items: (body.items || []).map((item) => ({
       productId: parseInt(item.idItem, 10),
       quantity: item.quantidadeItem,
@@ -24,11 +25,11 @@ function mapRequestToOrder(body) {
  */
 async function create(req, res) {
   try {
-    const { numeroPedido, valorTotal, dataCriacao, items } = req.body;
+    const { numeroPedido, valorTotal, items } = req.body;
 
-    if (!numeroPedido || valorTotal === undefined || !dataCriacao || !Array.isArray(items) || items.length === 0) {
+    if (!numeroPedido || valorTotal === undefined || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
-        error: 'Invalid request. Required fields: numeroPedido, valorTotal, dataCriacao, items (non-empty array).',
+        error: 'Invalid request. Required fields: numeroPedido, valorTotal, items (non-empty array).',
       });
     }
 
@@ -88,11 +89,11 @@ async function list(req, res) {
 async function update(req, res) {
   try {
     const { orderId } = req.params;
-    const { valorTotal, dataCriacao, items } = req.body;
+    const { valorTotal, items } = req.body;
 
-    if (valorTotal === undefined || !dataCriacao || !Array.isArray(items) || items.length === 0) {
+    if (valorTotal === undefined || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
-        error: 'Invalid request. Required fields: valorTotal, dataCriacao, items (non-empty array).',
+        error: 'Invalid request. Required fields: valorTotal, items (non-empty array).',
       });
     }
 
