@@ -9,6 +9,7 @@ Orderfy é uma simples API RESTful para gerenciamento de pedidos, desenvolvida e
 - [Express](https://expressjs.com/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Docker](https://www.docker.com/products/docker-desktop/)
+- [JWT](https://jwt.io/)
 
 ## Instalação e Requisitos
 
@@ -52,6 +53,88 @@ Para importar o arquivo:
 
 Com isso, você pode testar os endpoints diretamente no Postman de maneira simplificada.
 
+## Autenticação
+
+A API utiliza uma autenticação via **JWT (JSON Web Token)**. Todos os endpoints de pedidos exigem um token válido no header `Authorization` para evitar acesso não autorizado.
+
+Para autenticar, siga o passo a passo a seguir:
+
+1. Registre um usuário em `POST /auth/register`
+2. Faça login em `POST /auth/login`
+
+Ao usar a collection do Postman, o token é salvo automaticamente na variável `{{token}}` após o login e enviado em todas as requisições de pedidos sem nenhuma configuração adicional.
+
+Caso esteja testando via curl, envie o token manualmente no header:
+
+```
+Authorization: Bearer <token>
+```
+
+OBS: O token tem uma validade de **24 horas**.
+
+### POST /auth/register
+Registrar usuário.
+
+**Request body:**
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+**curl:**
+```bash
+curl --location 'http://localhost:3000/auth/register' \
+--request POST \
+--header 'Content-Type: application/json' \
+--data '{
+  "username": "admin",
+  "password": "admin123"
+}'
+```
+
+**Response `201 Created`:**
+```json
+{
+  "id": 1,
+  "username": "admin"
+}
+```
+
+---
+
+### POST /auth/login
+Login.
+
+**Request body:**
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+**curl:**
+```bash
+curl --location 'http://localhost:3000/auth/login' \
+--request POST \
+--header 'Content-Type: application/json' \
+--data '{
+  "username": "admin",
+  "password": "admin123"
+}'
+```
+
+**Response `200 OK`:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+---
+
 ### POST /order
 Criar pedido.
 
@@ -76,6 +159,7 @@ Criar pedido.
 curl --location 'http://localhost:3000/order' \
 --request POST \
 --header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <token>' \
 --data '{
   "numeroPedido": "v10089015vdb-01",
   "valorTotal": 10000,
@@ -116,7 +200,8 @@ Buscar pedido por ID.
 **curl:**
 ```bash
 curl --location 'http://localhost:3000/order/v10089015vdb-01' \
---request GET
+--request GET \
+--header 'Authorization: Bearer <token>'
 ```
 
 **Response `200 OK`:**
@@ -145,7 +230,8 @@ Listar todos os pedidos.
 **curl:**
 ```bash
 curl --location 'http://localhost:3000/order/list' \
---request GET
+--request GET \
+--header 'Authorization: Bearer <token>'
 ```
 
 **Response `200 OK`:**
@@ -178,6 +264,7 @@ Atualizar pedido.
 curl --location 'http://localhost:3000/order/v10089015vdb-01' \
 --request PUT \
 --header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <token>' \
 --data '{
   "valorTotal": 20000,
   "dataCriacao": "2023-07-20T09:00:00.000+00:00",
@@ -217,7 +304,8 @@ Deletar pedido.
 **curl:**
 ```bash
 curl --location 'http://localhost:3000/order/v10089015vdb-01' \
---request DELETE
+--request DELETE \
+--header 'Authorization: Bearer <token>'
 ```
 
 **Response `200 OK`:**
@@ -234,9 +322,17 @@ curl --location 'http://localhost:3000/order/v10089015vdb-01' \
 | Status | Descrição |
 |--------|-----------|
 | `400 Bad Request` | Campos obrigatórios ausentes ou incorretos |
+| `401 Unauthorized` | Token ausente ou incorreto |
 | `404 Not Found` | Pedido não encontrado |
-| `409 Conflict` | Já existe um pedido com esse ID |
+| `409 Conflict` | Já existe um pedido ou usuário com esse ID |
 | `500 Internal Server Error` | Erro interno no servidor |
+
+**Exemplo `401`:**
+```json
+{
+  "error": "Access denied. No token provided."
+}
+```
 
 **Exemplo `404`:**
 ```json
@@ -253,13 +349,18 @@ curl --location 'http://localhost:3000/order/v10089015vdb-01' \
 orderfy-api/
 ├── src/
 │   ├── controllers/
+│   │   ├── auth.controller.js    # Handlers de registro e login
 │   │   └── order.controller.js   # Handlers e mapping dos campos
 │   ├── database/
 │   │   └── migrations.js         # Criação das tabelas no banco
+│   ├── middleware/
+│   │   └── auth.middleware.js    # Validação do token JWT
 │   ├── models/
-│   │   └── order.model.js        # Queries SQL
+│   │   ├── user.model.js         # Queries SQL de usuários
+│   │   └── order.model.js        # Queries SQL de pedidos
 │   ├── routes/
-│   │   └── order.routes.js       # Rotas da aplicação
+│   │   ├── auth.routes.js        # Rotas de autenticação
+│   │   └── order.routes.js       # Rotas de pedidos
 │   └── db.js                     # Pool de conexão com o PostgreSQL
 ├── .env                          # Variáveis de ambiente
 ├── docker-compose.yml            # Imagem Docker do Projeto e do PostgreSQL
