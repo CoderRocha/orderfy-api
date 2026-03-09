@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { runMigrations } = require('./src/database/migrations');
 const orderRoutes = require('./src/routes/order.routes');
+const authRoutes = require('./src/routes/auth.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,6 +11,7 @@ app.use(express.json());
 
 // Routes
 app.get('/', (_req, res) => res.json({ message: 'Orderfy API is running.' }));
+app.use('/auth', authRoutes);
 app.use('/order', orderRoutes);
 
 // Start server after migrations
