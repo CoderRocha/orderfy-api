@@ -1,6 +1,6 @@
 # Orderfy API
 
-Orderfy é uma simples API REST para gerenciamento de pedidos, desenvolvida em Node.js com Express e PostgreSQL.
+Orderfy é uma simples API RESTful para gerenciamento de pedidos, desenvolvida em Node.js com Express e PostgreSQL.
 
 ## Stack
 
@@ -281,4 +281,4 @@ A API recebe os dados e faz o mapping necessário para salvar as informações n
 
 ## Autor
 
-- [Guilherme Rocha](https://github.com/codderrocha)
+- [Guilherme Rocha](https://github.com/coderrocha)
