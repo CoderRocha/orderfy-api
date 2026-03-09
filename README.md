@@ -16,23 +16,32 @@ Orderfy é uma simples API RESTful para gerenciamento de pedidos, desenvolvida e
 É necessário ter as seguintes ferramentas instaladas:
 
 - [Node.js](https://nodejs.org/)
+- [PostgreSQL](https://www.postgresql.org/)
 - [Postman](https://www.postman.com/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 Depois de instalar as ferramentas, execute os seguintes comandos:
 
 ```bash
+# Copiar o arquivo exemplo de variáveis de ambiente e renomear para .env
+cp .env.example .env
+
 # Instalar dependências
 npm install
 
 # Buildar a imagem Docker e o banco de dados PostgreSQL (Precisa do Docker Desktop)
+npm run docker
+
+# Ou buildar diretamente, caso prefira
 docker compose up -d
 
-# Iniciar o servidor em modo desenvolvimento
+# Iniciar o servidor
 npm run dev
 ```
 
-Após isso, o servidor estará disponível em `http://localhost:3000`.
+Após isso, a API estará disponível em `http://localhost:3000`.
+
+OBS: Se já tiver o PostgreSQL instalado, basta criar o banco de dados 'orderfy' com as credenciais do arquivo `.env` e executar o `npm run dev`, criando as tabelas automaticamente.
 
 ---
 
