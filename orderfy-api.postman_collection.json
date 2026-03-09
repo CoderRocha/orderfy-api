@@ -11,6 +11,10 @@
     {
       "key": "orderId",
       "value": "v10089015vdb-01"
+    },
+    {
+      "key": "token",
+      "value": ""
     }
   ],
   "item": [
@@ -23,6 +27,66 @@
       }
     },
     {
+      "name": "Registrar usuário",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/register",
+        "description": "Cria um novo usuário.",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          },
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.token) {",
+              "  pm.collectionVariables.set('token', json.token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/login",
+        "description": "Autentica o usuário e salva o token automaticamente na variável {{token}}.",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          },
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+        }
+      }
+    },
+    {
       "name": "Criar pedido",
       "request": {
         "method": "POST",
@@ -32,6 +96,10 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
           }
         ],
         "body": {
@@ -50,7 +118,13 @@
       "request": {
         "method": "GET",
         "url": "{{baseUrl}}/order/{{orderId}}",
-        "description": "Retorna os dados de um pedido específico pelo seu ID."
+        "description": "Retorna os dados de um pedido específico pelo seu ID.",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ]
       }
     },
     {
@@ -58,7 +132,13 @@
       "request": {
         "method": "GET",
         "url": "{{baseUrl}}/order/list",
-        "description": "Retorna todos os pedidos cadastrados com seus itens."
+        "description": "Retorna todos os pedidos cadastrados com seus itens.",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ]
       }
     },
     {
@@ -71,6 +151,10 @@
           {
             "key": "Content-Type",
             "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
           }
         ],
         "body": {
@@ -89,7 +173,13 @@
       "request": {
         "method": "DELETE",
         "url": "{{baseUrl}}/order/{{orderId}}",
-        "description": "Remove um pedido e todos os seus itens."
+        "description": "Remove um pedido e todos os seus itens.",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ]
       }
     }
   ]
